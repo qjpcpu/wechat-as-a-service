@@ -1,0 +1,49 @@
+extends ../layout
+
+block content 
+  .row
+    .col-lg-12
+      .panel.panel-default
+        .panel-heading Apps
+        .panel-body
+          table.table.table-striped
+            tr
+              th ID
+              th 名称
+              th CorpId
+              th CorpSecret
+              th token
+              th AES Key
+              th 回调token
+              th 已配置消息回调(个)
+              th 已配置事件回调(个)
+              th -
+            each app in apps
+              tr(id="#{app.id}")
+                td= app.identifier
+                td
+                  a(href="/agents/#{app.id}/edit")= app.name
+                td= app.corpId
+                td= app.corpSecret
+                td= app.token
+                td= app.encodingAesKey
+                td= app.callbackToken
+                td
+                  a(href="/agents/#{app.id}/edit-detail")= app.messagesCount
+                td
+                  a(href="/agents/#{app.id}/edit-detail")= app.eventsCount
+                td
+                  a.del-row.btn.btn-default(type='button',href="#") 删除
+          a(href="/agents/new",class='btn btn-primary') 新建App
+  .modal.fade(tabindex='-1',role='dialog')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type="button",data-dismiss="modal",aria-label="Close")
+            span(aria-hidden="true") &times;
+          h4.modal-title 确认删除?
+        .modal-footer
+          button.btn.btn-primary(data-dismiss='modal',type='button',id="confirm-del") 确定
+          button.btn.btn-default(data-dismiss='modal',type='button') 取消
+block js
+  script(src="/assets/scripts/agents.js")

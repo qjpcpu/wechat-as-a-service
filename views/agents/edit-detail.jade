@@ -1,0 +1,77 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12
+      .panel.panel-default
+        .panel-heading= name
+        .panel-body  
+          .row
+            .col-lg-12
+              .panel.panel-primary
+                .panel-heading 消息响应
+                .panel-body
+                  table#msg-table.table.table-striped
+                    tr#line0
+                      th 回复类型
+                      th 回调地址/回复内容
+                      th 匹配内容
+                      th -
+                    each msg,index in messages
+                      tr(id='line#{index + 1}')
+                        td
+                          select.change-type.form-control
+                            option(value='text',selected=(msg.type == "text")) 文本
+                            option(value='callback',selected=(msg.type == "callback")) 回调模式
+                        td
+                          input(type='text',class='msg-content form-control',value="#{msg.url || msg.words}")
+                        td
+                          input(type='text',class='msg-condition form-control',value="#{msg.match}")
+                        td
+                          button.del-row.btn.btn-default(type='button') 删除
+
+                  input#add-msg.btn.btn-default(type="button",value="添加一条")
+          .row
+            .col-lg-12
+              .panel.panel-primary
+                .panel-heading 事件响应
+                .panel-body
+                  table#evt-table.table.table-striped
+                    tr#line0
+                      td 回复类型
+                      td 回调地址/回复内容
+                      td 事件类型
+                      td -
+                    each cfg,evt in events
+                      tr(id='line1')
+                        td
+                          select.change-type.form-control
+                            option(value='text',selected=(cfg.type == "text")) 文本
+                            option(value='callback',selected=(cfg.type == "callback")) 回调模式
+                        td
+                          input(type='text',class='evt-content form-control',value="#{cfg.url || cfg.words}")
+                        td
+                          select.change-evt.form-control
+                            option(value='subscribe',selected=(evt == 'subscribe'))  订阅
+                            option(value='unsubscribe',selected=(evt == 'unsubscribe'))  退阅
+                            option(value='scancode_push',selected=(evt == 'scancode_push'))  扫码推(不显示二维码内容)
+                            option(value='scancode_waitmsg',selected=(evt == 'scancode_waitmsg'))  扫码(显示二维码内容)
+                            option(value='enter_agent',selected=(evt == 'enter_agent'))  用户进入App
+                            option(value='click',selected=(evt == 'click'))  点击菜单
+                            option(value='location',selected=(evt == 'location'))  上报地理位置
+                            option(value='view',selected=(evt == 'view'))  点击菜单跳转链接
+                            option(value='pic_sysphoto',selected=(evt == 'pic_sysphoto'))  弹出系统拍照发图
+                            option(value='pic_photo_or_album',selected=(evt == 'pic_photo_or_album'))  弹出拍照或者相册发图
+                            option(value='pic_weixin',selected=(evt == 'pic_weixin'))  弹出微信相册发图器
+                            option(value='location_select',selected=(evt == 'location_select')) 弹出地理位置选择器
+                            option(value='batch_job_result',selected=(evt == 'batch_job_result'))  异步任务完成
+                          td
+                            button.del-row.btn.btn-default(type='button') 删除
+                  input#add-evt.btn.btn-default(type="button",value="添加一条")
+
+          input#save.btn.btn-primary(type="button",value="提交")
+          a.btn.btn-default(href="/agents") 返回
+          input.submit_url(type='hidden',value="/agents/#{id}/detail")
+
+block js
+  script(src="/assets/scripts/agents-edit-detail.js")

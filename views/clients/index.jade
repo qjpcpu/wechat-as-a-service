@@ -1,0 +1,51 @@
+extends ../layout
+
+block content 
+  .row
+    .col-lg-12
+      .panel.panel-default
+        .panel-heading client配置
+        .panel-body
+          table.table.table-striped
+            tr
+              th 名称
+              th App
+              th clientId
+              th Secret
+              th 单点登录回调地址
+              td -
+            each client in clients
+              tr(id="#{client.id}")
+                td
+                  a(href="/clients/#{client.id}/edit")= client.name
+                td= client.appName
+                td= client.identifier
+                td= client.secret
+                td= client.redirectUri
+                td
+                  a.del-row.btn.btn-danger(type='button') 删除
+                  a.get-token.btn.btn-default(type='button') 获取token
+          a(href="/clients/new",class='btn btn-primary') 新建client配置
+  .modal.fade(tabindex='-1',role='dialog',id='modal-token')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type="button",data-dismiss="modal",aria-label="Close")
+            span(aria-hidden="true") &times;
+          h4.modal-title Access token
+        .modal-body
+          pre#token-body access token
+        .modal-footer
+          button.btn.btn-default(data-dismiss='modal',type='button') 确定
+  .modal.fade(tabindex='-1',role='dialog',id='modal-del')
+    .modal-dialog
+      .modal-content
+        .modal-header
+          button.close(type="button",data-dismiss="modal",aria-label="Close")
+            span(aria-hidden="true") &times;
+          h4.modal-title 确认删除?
+        .modal-footer
+          button.btn.btn-primary(data-dismiss='modal',type='button',id="confirm-del") 确定
+          button.btn.btn-default(data-dismiss='modal',type='button') 取消
+block js
+  script(src="/assets/scripts/clients.js")

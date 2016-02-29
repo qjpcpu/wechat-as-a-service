@@ -1,0 +1,27 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-11
+      form.form-horizontal
+        .form-group
+          label.col-sm-2.control-label(for='name') 名称
+          .col-sm-10
+            input#name.form-control(type='text', placeholder='客户系统名称',minlength="2",required,value="#{name || ''}")
+        .form-group
+          label.col-sm-2.control-label(for='redirectUri') 登录回调地址
+          .col-sm-10
+            input#redirectUri.form-control(type='url', placeholder='客户系统回调地址',value="#{redirectUri || ''}")
+        .form-group
+          label.col-sm-2.control-label(for='agentIdentifier') App
+          .col-sm-10
+            select#agentIdentifier.form-control
+              each app in apps
+                option(value="#{app.identifier}",selected=(app.identifier == agentIdentifier))= app.name
+        .form-group
+          .col-sm-offset-2.col-sm-10
+            button#create-client.btn.btn-default(type='button') 确认
+      input.submit_url(type='hidden',value="/clients/#{id || ''}")
+
+block js
+  script(src="/assets/scripts/clients-new.js")

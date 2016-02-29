@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+[ -z "$DEBUG" ] && export DEBUG=http,waas:*
+[ -z "$NODE_ENV" ] && export NODE_ENV=production
+
+case X$1 in
+    Xstart)
+        if [ -z "`pm2 list|grep waas`" ];then
+            pm2 start bin/www -n waas --merge-logs -l logs/info.log --env DEBUG --env NODE_ENV
+        else
+            pm2 start waas
+        fi
+        echo 'waas started'
+        ;;
+    Xstop)
+        pm2 stop waas
+        echo 'waas stopped'
+        ;;
+    Xrestart)
+        pm2 restart waas
+        echo 'waas restarted'
+        ;;
+    X*)
+        echo "Usage: $0  start|stop|restart"
+        exit -1
+        ;;
+esac        

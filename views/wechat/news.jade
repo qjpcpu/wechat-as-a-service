@@ -1,0 +1,14 @@
+doctype xml
+xml
+  ToUserName <![CDATA[#{toUser}]]>
+  FromUserName <![CDATA[#{fromUser}]]>
+  CreateTime= time
+  MsgType <![CDATA[news]]>
+  ArticleCount= articles.length
+  Articles
+    each article in articles
+      item
+        Title <![CDATA[#{article.title}]]>
+        Description <![CDATA[#{article.description}]]>
+        PicUrl <![CDATA[#{article.picUrl}]]>
+        Url <![CDATA[#{article.url}]]>

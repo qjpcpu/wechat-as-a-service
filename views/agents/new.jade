@@ -1,0 +1,29 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-11
+      form.form-horizontal
+        .form-group
+          label.col-sm-2.control-label(for='name') 名称
+          .col-sm-10
+            input#name.form-control(type='text', placeholder='微信控制台配置的app中文名称',minlength="2",required,value="#{name || ''}")
+        .form-group
+          label.col-sm-2.control-label(for='identifier') ID
+          .col-sm-10
+            input#identifier.form-control(type='text', placeholder='微信控制台获取的app的ID',value="#{identifier || ''}")
+        .form-group
+          label.col-sm-2.control-label(for='token') token
+          .col-sm-10
+            input#token.form-control(type='text', placeholder='微信控制台配置的app token',value="#{token || ''}")
+        .form-group
+          label.col-sm-2.control-label(for='aesKey') AES密钥
+          .col-sm-10
+            input#aesKey.form-control(type='text', placeholder='微信控制台配置的app的AES加密密钥',value="#{encodingAesKey || ''}")
+        .form-group
+          .col-sm-offset-2.col-sm-10
+            button#create-app.btn.btn-default(type='button') 确认
+      input.submit_url(type='hidden',value="/agents/#{id || ''}")
+
+block js
+  script(src="/assets/scripts/agents-new.js")
