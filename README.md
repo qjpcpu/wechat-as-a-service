@@ -226,7 +226,7 @@ $( document ).ready(function() {
 
 ![menu config](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/menu-config.png)
 
-注意菜单类型必须为`扫描推事件(弹框)`,菜单的KEY值为`system_login`。（当然回调模式也需要正确配置，不再赘述）
+注意菜单类型必须为`扫描推事件(弹框)`。（当然回调模式也需要正确配置，不再赘述）
 
 ### 登录示例
 
