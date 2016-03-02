@@ -1,4 +1,4 @@
-# WeChatNotifier(企业号)
+# WechatAsAService(企业号)
 
 目的是利用微信作为消息通知器，能做到easy to config & ready to use. 并且能够非常容易地作为依赖服务存在，比如：能够轻松集成到OP的告警系统里去。
 
@@ -11,25 +11,24 @@
 3. 公司多个内部系统可能都仅仅需要一个简单的微信发送器，而如果原始地直接暴露微信接口，那么每个子系统的开发维护同学都需要开发或部署一套微信接口，浪费了程序员的智慧。修改一条格言就是`Don't repeat you guys in your scope`。
 4. 微信企业号本身的权限控制比较粗放。
 
-WeChatNotifier的工作模式:
+WechatAsAService的工作模式:
 
-1. 运维/运营同学申请企业号，并在微信官网配置子系统如`erp,zabbix`等agent app的回调信息，为了管理方便，回调地址最好配置为相同地址，WeChatNotifier可自动区分消息转发到的app
-2. 运维同学搭建WeChatNotifier服务，配置其调用token及最终转发的地址。注意：每个agent app仅有一套回调地址，但可以有多个token。比如：在微信号里配置一个app叫`noah`(运维监控系统)，这个app在WeChatNotifier的回调地址都配置为运维的监控系统，那么只有监控系统可以处理所有用户发送给`noah`的消息；但是，可以在WeChatNotifier内为`noah`配置多个子调用token，比如监控系统本身可以调用全部的API，包括首发消息，管理人员关系等，但给某个产品线的仅开放一个最小token仅能发送消息。
+1. 运维/运营同学申请企业号，并在微信官网配置子系统如`erp,zabbix`等agent app的回调信息，为了管理方便，回调地址最好配置为相同地址，WechatAsAService可自动区分消息转发到的app
+2. 运维同学搭建WechatAsAService服务，配置其调用token及最终转发的地址。注意：每个agent app仅有一套回调地址，但可以有多个token。比如：在微信号里配置一个app叫`noah`(运维监控系统)，这个app在Waas的回调地址都配置为运维的监控系统，那么只有监控系统可以处理所有用户发送给`noah`的消息；但是，可以在Waas内为`noah`配置多个子调用token，比如监控系统本身可以调用全部的API，包括首发消息，管理人员关系等，但给某个产品线的仅开放一个最小token仅能发送消息。
 3. 所有内部系统开发同学只关心一件事: 我要调用的API(通常仅一个发送消息的API)及我的token
 
 ```
-这样，利用WeChatNotifier，企业号管理员可以做到统一管理配置，而使用微信发消息的子系统也仅需要记住一个RESTful API而已。
+这样，利用WechatAsAService，企业号管理员可以做到统一管理配置，而使用微信发消息的子系统也仅需要记住一个RESTful API而已。
 ```
 
 ### features:
 
 轻依赖:
 
-WeChatNotifier仅依赖node环境，不需要额外安装数据库(默认使用[leveldb](http://leveldb.org/)存储数据)，也不需要redis，甚至都不需要nginx/apache等web服务器.
+WechatAsAService仅依赖node环境和redis，甚至都不需要nginx/apache等web服务器.
 
 易配置:
 
-WeChatNotifier使用cson作为配置文件，可读性可写性高(有人说yaml，其实yaml属于可读性高，可写性并不高)。
 
 对于每个agent app，有两类处理模式可配置：
 
@@ -81,15 +80,15 @@ WeChatNotifier使用cson作为配置文件，可读性可写性高(有人说yaml
 
 单点登录:
 
-WeChatNotifier支持企业内部利用微信进行单点登录。
+WechatAsAService支持企业内部利用微信进行单点登录。
 
 ## 安装
 
-WeChatNotifier依赖于Node，所以请自行安装node环境，建议使用[nvm](https://github.com/creationix/nvm)安装node。
+WechatAsAService依赖于Node，所以请自行安装node环境，建议使用[nvm](https://github.com/creationix/nvm)安装node。
 
 ```
-git clone https://github.com/qjpcpu/WeChatNotifier
-cd WeChatNotifier
+git clone https://github.com/qjpcpu/wechat-as-a-service.git
+cd wechat-as-a-service
 # 安装依赖
 npm install -g coffee-script gulp pm2
 npm install
@@ -100,109 +99,87 @@ gulp build
 ## 配置
 
 ### 在微信企业号页面配置回调模式
-回调地址为`http://your-wechat-notifier-host/wechat/callback`
+回调地址为`http://your-tifier-host/wechat/callback`
 
 （其他略）
 
-### 配置wechat-notifier
-
-配置文件位于`conf/config.cson`, 为了保证配置文件同时具有可读性和可写性，文件格式采用了`cson`, 具体规范可参考[CoffeeScript-Object-Notation](https://github.com/bevry/cson)。
-
-参考配置:
-
-```
-wechat:
-  apps: [
-    {
-      id: 2     # agent id, 对应于微信企业号中的应用id
-      token: 'abcd'  # 微信企业号中回调URL配置中的Token
-      callbackToken: 'balabalabala'  # wechat-notifier客户端使用该token来验证消息是否来自wechat-notifier,可选，不试用则注释掉该项
-      encodingAesKey: 'AQVDCD6fXqkP4WB1PKdSK19DE1QPcmbw0sda53WxMjy'  # 微信企业号中回调URL配置中的EncodingAESKey
-      corpId: 'wxeefwefe'   # 企业号ID
-      corpSecret: 'fwefcxvxcvxcvxcxcv'  # 企业号secret
-      events:                # 可选，事件回调，响应类型为text直接返回words配置的字符串，否则执行url配置的转发
-        subscribe:
-          type: 'text'
-          words: 'welcome'
-        unsubscribe:
-          type: 'text'
-          words: 'byebye'
-        click:
-          type: 'callback'
-          url: 'http://example.com/wechat/menu'
-      messages: [             # 可选
-        {
-          match: '.*'         # 正则匹配(match)，如果是equals则执行完全相等匹配
-          type: 'callback'    # 同events配置，可以为text/callback
-          url: 'http://example.com/wechat/message'
-        }
-      ]
-    }
-  ]
-```
-
 ## 运行
 
-wechat-notifier默认监听8002端口，如果需要启动到其他端口，需要在设置环境变量`PORT`:
+waas默认监听8002端口，如果需要启动到其他端口，需要在设置环境变量`PORT`:
 
 ```
 export PORT=8888
 ```
 
 ```
-cd WeChatNotifier
+cd wechat-as-a-service
 ./control start  # 启动服务
 ./control stop   # 停止服务
 ./control restart # 重启服务
 ```
 
-## 客户端调用
+### 配置waas
 
-如果某个客户端需要调用wechat-notifier,则需要先配置其token
+#### 1.在企业号页面新建App
+首先，在[微信企业号](https://qy.weixin.qq.com)页面登录配置一个新的应用`test`。
+
+![test-index](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/test-app-index.png)
+
+配置其回调模式
+![test-callback](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/test-callback-config.png)
+
+根据需要配置菜单
+
+![test-menu](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/test-menu-config.png)
+
+预览菜单
+
+![test-menu-preview](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/test-menu-preview.png)
+
+#### 2.配置waas App
+
+> 在启动服务后再进入web页面配置app
+
+注意：waas的web管理端仅授信管理员可扫码登录，配置段位于`config.coffee`文件
+
+```
+config =
+  administrators: [
+    'jason'
+    'jack'
+    'tom'
+  ]
+```
+在`App配置`页面配置test app:
+
+![waas-test-app](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/waas-test-app.png)
+
+注意这里的`ID`和微信企业号页面的`应用ID`一致,`token`和`AESKey`也必须保持一致。
+
+配置回调模式,这里可以一起配置消息响应和事件响应:
+
+![waas-callback-config](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/waas-callback-config.png)
+
+当收到某种文本(支持正则表达式)后，可以直接回复文本内容或将收到的消息转发到某个回调地址；
+
+当接受到某个事件，也可以回复指定文本，或将事件转发到某个回调地址；
+
+如果不需要进行响应，可以不配置。
+
+一个waas `App`需要对应配置一个Client,如果不需要进行单点登录，这里的登录回调地址可以留空:
+
+![waas-test-client](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/waas-test-client.png)
+
+如果客户端调用waas API，则需要在client配置页生成token:
+
+![get-client-token](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/get-client-token.png)
+
 
 ### 客户token配置
 
-#### 1. 查看现有token列表
+配置已迁移到web页面
 
-```
-cd WeChatNotifier
-./cli/wcn token list
-```
-
-类似输出为:
-
-```
--
-  key:   NDdkMWU3MTAtODQ2NS0xMWU1LWFhYTItZDNmMDAwOTQ4Y2Yw
-  value:
-    agentId: 2
-    name:    Test
-    role:    notifier
-    id:      7fa8ab90-8462-11e5-92ac-717b74321647
-```
-
-#### 2. 创建新token
-
-```
-cd WeChatNotifier
-./cli/wcn token create  # 按照提示一步步输入
-```
-
-#### 3. 修改token配置
-
-```
-cd WeChatNotifier
-./cli/wcn token update  # 按照提示一步步输入
-```
-
-#### 4. 删除token配置
-
-```
-cd WeChatNotifier
-./cli/wcn token del  # 按照提示一步步输入
-```
-
-### 调用wechat-notifier
+### 调用waas
 
 所有api调用必须带上上一步配置的token，调用规则为:
 
@@ -247,31 +224,21 @@ $( document ).ready(function() {
 
 首先，需要在微信公众号某个app配置一个扫描二维码的菜单，建议新建独立app专门作为登录app。将该app的回调模式=>自定义菜单配置为:
 
-![menu config](https://raw.githubusercontent.com/qjpcpu/WeChatNotifier/master/images/menu-config.png)
+![menu config](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/menu-config.png)
 
 注意菜单类型必须为`扫描推事件(弹框)`,菜单的KEY值为`system_login`。（当然回调模式也需要正确配置，不再赘述）
 
 ### 登录示例
 
-比如内部系统`Test`需要使用单点登录，使用`cli/wcn token create`为改系统生成配置:
+比如内部系统`Test`需要使用单点登录:
 
-```
--
-  key:   NDdkMWU3MTAtODQ2NS0xMWU1LWFhYTItZDNmMDAwOTQ4Y2Yw
-  value:
-    agentId: 2
-    name:    Test
-    role:    notifier
-    id:      7fa8ab90-8462-11e5-92ac-717b74321647
-```
-
-如果wechatnotifier的域名为`http://wcn.com`,`Test`系统需要引导用户到`http://wcn.com/?id=7fa8ab90-8462-11e5-92ac-717b74321647&redirect_uri=http://test.com`登录。
+如果waas的域名为`http://wcn.com`,`Test`系统需要引导用户到`http://wcn.com/?id=7fa8ab90-8462-11e5-92ac-717b74321647&redirect_uri=http://test.com`登录。
 
 其中，`id`为上一步生成的id,`redirect_uri`是回调地址。
 
 用户到`http://wcn.com/?id=7fa8ab90-8462-11e5-92ac-717b74321647&redirect_uri=http://test.com/callback`看到如下的页面:
 
-![login page](https://raw.githubusercontent.com/qjpcpu/WeChatNotifier/master/images/login.png)
+![login page](https://raw.githubusercontent.com/qjpcpu/wechat-as-a-service/master/snapshots/login.png)
 
 用户使用企业号配置的对应app扫码即可登录，成功登录后会回调到:
 
@@ -279,7 +246,7 @@ $( document ).ready(function() {
 http://test.com/callback/?ticket=DkwMS0xMWU1LWJiMjMtYWRjZ
 ```
 
-`Test`系统获取到这个ticket后就到WechatNotifier进行验证，获取用户信息。
+`Test`系统获取到这个ticket后就到Waas进行验证，获取用户信息。
 
 ```
 POST http://wcn.com/validate?accessToken=NDdkMWU3MTAtODQ2NS0xMWU1LWFhYTItZDNmMDAwOTQ4Y2Yw
@@ -290,7 +257,7 @@ post请求数据为:
 ```
 
 > 注意:
-> wechatnotifier设想的场景为内部系统单点登录，并没有对回调地址做限制。
+> waas设想的场景为内部系统单点登录，并没有对回调地址做限制。
 
 ## API列表
 
