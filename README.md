@@ -197,7 +197,7 @@ curl http://127.0.0.1:8002/users/send?accessToken=NDdkMWU3MTAtODQ2NS0 -d body=he
 发送一条长消息给jason和link:
 
 ```
-curl -H "Content-Type: application/json" -X POST -d '{"users":["jason","link"],"body":{"title":"subject1","description":"this is a very long message"},"type":"news"}'  http://127.0.0.1:8002/users/send?accessToken=NDdkMWU3MTAtODQ2NS0
+curl -H "Content-Type: application/json" -X POST -d '{"users":["jason","link"],"body":{"title":"subject1","description":"this is a very long message","url":"http://www.baidu.com","picUrl":"http://i5.hexunimg.cn/2016-06-29/184643130.jpg"},"type":"news"}'  http://127.0.0.1:8002/users/send?accessToken=NDdkMWU3MTAtODQ2NS0
 ```
 
 ## 单点登录
