@@ -7,6 +7,8 @@ config =
   wechat:
     corpId: 'your-corpid'
     corpSecret: 'your-corpSecret'
+    token: 'first-token'
+    encodingAesKey: 'first-token'
   redis:
     host: "localhost"
     port: '6379'

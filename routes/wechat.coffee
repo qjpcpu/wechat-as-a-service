@@ -8,6 +8,7 @@ Cc = require 'change-case'
 Agent = require '../models/agent'
 WeChatRouter = require '../models/wechat-router'
 moment = require 'moment'
+Config = require '../config'
 
 router = express.Router()
 log = debug('http')
@@ -40,9 +41,16 @@ router.use '/callback',xmlparser({trim: false,normalize: false,normalizeTags: fa
               message: req.query.echostr or req.body.xml.Encrypt
             if vr
               return cb(null,agent)
-          cb('No agent found')
+          log "use default agent"
+          agent = new Agent
+            token: Config.wechat.token
+            corpId: Config.wechat.corpId
+            corpSecret: Config.wechat.corpSecret
+            encodingAesKey: Config.wechat.encodingAesKey
+          cb(null,agent)
     )
   ], (err,agent) ->
+    log err
     if err
       if req.query.echostr
         res.send req.query.echostr
