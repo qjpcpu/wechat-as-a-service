@@ -86,7 +86,7 @@ gulp.task 'build', (cb) ->
 
 gulp.task 'deploy', ['build'], ->
   gulp.src ['./public/assets/scripts/lander.js','./public/assets/scripts/index.js','./public/assets/scripts/local_talk.js']
-    .pipe gbuild(host: 'https://wechat.pf.tap4fun.com',rootDomain: 'tap4fun.com')
+    .pipe gbuild(host: 'https://wechat.exmaple.com',rootDomain: 'example.com')
     .pipe gulp.dest('./public/assets/scripts/')
 
 # start serve

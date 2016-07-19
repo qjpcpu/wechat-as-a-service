@@ -92,8 +92,9 @@ cd wechat-as-a-service
 # 安装依赖
 npm install -g coffee-script gulp pm2
 npm install
+# 修改编译脚本gulpfile.coffee 89行, host:为部署域名, rootDomain:为根域名
 # 编译
-gulp build
+gulp deploy
 ```
 
 ## 配置
