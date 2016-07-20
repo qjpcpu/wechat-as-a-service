@@ -206,7 +206,7 @@ curl -H "Content-Type: application/json" -X POST -d '{"users":["jason","link"],"
 
 ```
 <div id="login"></div>
-<script src="https://wechat.pf.tap4fun.com/assets/scripts/lander.js"></script>
+<script src="https://wechat.example.com/assets/scripts/lander.js"></script>
 <script type="text/javascript">
 $( document ).ready(function() {
   var lander = new Lander({
