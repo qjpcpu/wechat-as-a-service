@@ -194,6 +194,12 @@ GET/POST/PUT/DELETE  /api-uri?accessToken=YOUR_TOKEN
 curl http://127.0.0.1:8002/users/send?accessToken=NDdkMWU3MTAtODQ2NS0 -d body=hello -d users=jason
 ```
 
+发送给具有某个角色标签`god`的所有用户一条消息:
+
+```
+curl http://127.0.0.1:8002/roles/god/send?accessToken=NDdkMWU3MTAtODQ2NS0 -d body=hello
+```
+
 发送一条长消息给jason和link:
 
 ```

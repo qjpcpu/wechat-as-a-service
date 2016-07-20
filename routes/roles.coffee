@@ -133,6 +133,6 @@ router.post '/:name/send', (req, res) ->
         log "send message failed",err
         res.status(403).json message: err
       else
-        res.json message: 'OK'       
+        res.json message: 'OK',delivery: req.body.tagIds.length       
 
 module.exports = router            
