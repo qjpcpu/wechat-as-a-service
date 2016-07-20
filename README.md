@@ -139,7 +139,7 @@ cd wechat-as-a-service
 
 #### 2.配置waas App
 
-> 在启动服务后再进入web页面配置app,需要先注释掉config.coffee里的administrators配置,NOTE:在配置自身的单点登录时,需要将负责登录的app名称设置为self,且其登录回调地址为http://exmaple.com/check_login(注意路由)
+> 在启动服务后再进入web页面配置app,需要先注释掉config.coffee里的administrators配置,NOTE:在配置自身的单点登录时,需要将负责登录的client名称设置为self,且其登录回调地址为http://exmaple.com/check_login(注意路由)
 
 注意：waas的web管理端仅授信管理员可扫码登录，配置段位于`config.coffee`文件
 
