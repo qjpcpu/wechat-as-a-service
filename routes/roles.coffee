@@ -100,4 +100,39 @@ router.post '/:id/detach', (req, res) ->
     else
       res.json message: 'OK'        
 
+router.post '/:name/send', (req, res) ->
+  agent = res.locals.agent
+  agent.tags (err,list) ->
+    req.body.tagIds ?= []
+    if err
+      log "failed to get roles",err
+      res.status(404).json message: "no such role:#{req.params.name}"
+      return
+    else
+      regex = new RegExp "^#{res.locals.agent.identifier}_"
+      list = (
+        for r in list when r.name == "#{res.locals.agent.identifier}_#{req.params.name}"
+          r.name = r.name.replace(regex,'')
+          r
+      )
+      if list.length == 0
+        res.status(404).json message: "no such role:#{req.params.name}"
+        return
+      else
+        req.body.tagIds.push list[0].id
+
+    req.body.type ?= 'text'
+    unless req.body.type in ['text','news']
+      log "Not supported message type #{req.body.type}"
+      return res.status(403).json message: "Not supported message type #{req.body.type}"
+    unless req.body.body
+      log 'message body not found',req.body
+      return res.status(403).json message: 'message body not found'
+    agent.sendMessage req.body, (err) ->
+      if err
+        log "send message failed",err
+        res.status(403).json message: err
+      else
+        res.json message: 'OK'       
+
 module.exports = router            
