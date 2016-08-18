@@ -10,8 +10,6 @@ jade = require 'jade'
 rest = require 'restler'
 config = require '../config'
 uuid = require 'node-uuid'
-redis = require 'redis'
-cache = require './cache'
 
 log = debug 'waas:agent'
 
@@ -286,12 +284,6 @@ Agent.prototype.formatMessage = (msg) ->
       posts = []
       for a,i in msg.body when i < 10
         throw "every news must have a title" unless a.title
-        unless a.url?.length > 0
-          id = (new Buffer(uuid.v1())).toString()
-          key = "waas:datastore:#{id}"
-          cache.set key,a.description.replace(ctrlUnicode,''),redis.print
-          cache.expire key, 3600
-          a.url = "#{req.protocol}://#{req.get('host')}/datastore/fetch/#{id}"
         posts.push
           title: a.title.replace(ctrlUnicode,'')
           description: a.description.replace(ctrlUnicode,'')
