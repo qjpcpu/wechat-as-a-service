@@ -8,6 +8,9 @@ Client = require '../models/client'
 ss = require '../models/socket-server'
 jwtCfg = require('../config').jwt.accessToken
 jwt = require 'jsonwebtoken'
+Agent = require '../models/agent'
+redis = require 'redis'
+cache = require '../models/cache'
 
 router = express.Router()
 log = debug('http')
@@ -88,7 +91,7 @@ router.post '/validate', (req,res) ->
           res.status(403).json message: '非法的ticket'
 
 router.post '/exchange_token', (req,res) ->
-  secret = req.post.secret
+  secret = req.body.secret
   unless secret 
     log "No secret found in request"
     res.status(403).json message: 'no secret found'
@@ -100,6 +103,39 @@ router.post '/exchange_token', (req,res) ->
     else
       accessToken = client.generateAccessToken()
       res.json { message: 'update token ok',token: accessToken }
-     
+
+router.get '/datastore/fetch/:id', (req,res) ->
+  if req.params.id?.length > 0
+    key = "waas:datastore:#{req.params.id}"
+    cache.get key ,(err,reply) ->
+      log "error to fetch #{key}" if err
+      res.send reply
+  else
+    res.send ''
+
+# post body is raw data
+router.post '/datastore/put', (req,res) ->
+  token = req.query.accessToken
+  unless token 
+    log "No accessToken found in request"
+    res.status(403).json message: 'no access token found'
+    return
+  jwt.verify token, jwtCfg.secret, (jwterr, payload) ->
+    if payload?.type == 'accessToken' and payload?.agentId?
+      Agent.findOne where: identifier: payload.agentId.toString(), (camErr,agent) ->
+        if camErr
+          log "not found app",err
+          res.status(404).json message: '无对应的app' 
+        else
+          id = (new Buffer(uuid.v1())).toString()
+          key = "waas:datastore:#{id}"
+          cache.set key,req.body.body,redis.print
+          cache.expire key, 3600 * 24  # 1 day
+          res.send "/datastore/fetch/#{id}"
+    else if jwterr?.name == 'TokenExpiredError'
+      res.status(403).json message: 'Access token过期'
+    else
+      res.status(403).json message: '非法的access token'
+
 
 module.exports = router
