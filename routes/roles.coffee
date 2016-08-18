@@ -141,7 +141,7 @@ router.post '/:name/send', (req, res) ->
               cb(null)
         else
           cb(null)
-    ], (err,res) ->
+    ], (err,resp) ->
       return res.json message: 'Duplicate message' if err
       agent.sendMessage req.body, (err) ->
         if err
