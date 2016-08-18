@@ -89,12 +89,26 @@ router.post '/send', (req,res) ->
   if (not req.body.users) and (not req.body.tagIds) and (not req.body.departmentIds)
     log "tagId/users/departmentIds not found"
     return res.status(403).json message: 'tagIds/users/departmentIds not found'
-  agent.sendMessage req.body, (err) ->
-    if err
-      log "send message failed",err
-      res.status(403).json message: err
-    else
-      res.json message: 'OK' 
+  async.waterfall [
+    (cb) ->
+      if req.query.freqId?.length > 0
+        Freq.get req.query.freqId, (exists) ->
+          if exists?.length > 0 
+            log 'do not send message'
+            cb('duplicate message')
+          else
+            cb(null)
+      else
+        cb(null)
+  ], (err,res) ->
+    return res.json message: 'Duplicate message' if err
+    agent.sendMessage req.body, (err) ->
+      if err
+        log "send message failed",err
+        res.status(403).json message: err
+      else
+        Freq.put req.query.freqId, JSON.stringify(req.body)
+        res.json message: 'OK'      
 
 router.get '/:userId', (req,res) ->
   agent = res.locals.agent
@@ -150,12 +164,26 @@ router.post '/:userId/send', (req,res) ->
   if (not req.body.users) and (not req.body.tagIds) and (not req.body.departmentIds)
     log "tagId/users/departmentIds not found"
     return res.status(403).json message: 'tagId/users/departmentIds not found'
-  agent.sendMessage req.body, (err) ->
-    if err
-      log "send message failed",err
-      res.status(403).json message: err
-    else
-      res.json message: 'OK'      
+  async.waterfall [
+    (cb) ->
+      if req.query.freqId?.length > 0
+        Freq.get req.query.freqId, (exists) ->
+          if exists?.length > 0 
+            log 'do not send message'
+            cb('duplicate message')
+          else
+            cb(null)
+      else
+        cb(null)
+  ], (err,res) ->
+    return res.json message: 'Duplicate message' if err
+    agent.sendMessage req.body, (err) ->
+      if err
+        log "send message failed",err
+        res.status(403).json message: err
+      else
+        Freq.put req.query.freqId, JSON.stringify(req.body)
+        res.json message: 'OK'      
 
 
 module.exports = router            

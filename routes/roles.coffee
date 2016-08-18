@@ -6,6 +6,7 @@ Agent = require '../models/agent'
 Client = require '../models/client'
 jwtCfg = require('../config').jwt.accessToken
 jwt = require 'jsonwebtoken'
+Freq = require '../models/freq'
 
 router = express.Router()
 log = debug 'http'
@@ -128,11 +129,26 @@ router.post '/:name/send', (req, res) ->
     unless req.body.body
       log 'message body not found',req.body
       return res.status(403).json message: 'message body not found'
-    agent.sendMessage req.body, (err) ->
-      if err
-        log "send message failed",err
-        res.status(403).json message: err
-      else
-        res.json message: 'OK'       
+    
+    async.waterfall [
+      (cb) ->
+        if req.query.freqId?.length > 0
+          Freq.get req.query.freqId, (exists) ->
+            if exists?.length > 0 
+              log 'do not send message'
+              cb('duplicate message')
+            else
+              cb(null)
+        else
+          cb(null)
+    ], (err,res) ->
+      return res.json message: 'Duplicate message' if err
+      agent.sendMessage req.body, (err) ->
+        if err
+          log "send message failed",err
+          res.status(403).json message: err
+        else
+          Freq.put req.query.freqId, JSON.stringify(req.body)
+          res.json message: 'OK'       
 
 module.exports = router            
