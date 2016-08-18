@@ -6,6 +6,7 @@ Agent = require '../models/agent'
 Client = require '../models/client'
 jwtCfg = require('../config').jwt.accessToken
 jwt = require 'jsonwebtoken'
+Freq = require '../models/freq'
 
 router = express.Router()
 log = debug 'http'
