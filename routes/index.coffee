@@ -134,7 +134,8 @@ router.post '/datastore/put', (req,res) ->
           key = "waas:datastore:#{id}"
           cache.set key,req.body.body,redis.print
           cache.expire key, expire_seconds
-          res.send "/datastore/fetch/#{id}"
+          res.send "#{req.protocol}://#{req.get('host')}/datastore/fetch/#{id}"
+          
     else if jwterr?.name == 'TokenExpiredError'
       res.status(403).json message: 'Access token过期'
     else
