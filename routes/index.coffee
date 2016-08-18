@@ -113,7 +113,8 @@ router.get '/datastore/fetch/:id', (req,res) ->
   else
     res.send ''
 
-# post body is raw data
+# post body.body is raw data
+# post body.keep is cache time in seconds
 router.post '/datastore/put', (req,res) ->
   token = req.query.accessToken
   unless token 
@@ -127,10 +128,12 @@ router.post '/datastore/put', (req,res) ->
           log "not found app",err
           res.status(404).json message: '无对应的app' 
         else
+          expire_seconds = 3600 * 24 # 1 day
+          expire_seconds = req.body.keep if req.body.keep < expire_seconds or req.body.keep > 0
           id = (new Buffer(uuid.v1())).toString()
           key = "waas:datastore:#{id}"
           cache.set key,req.body.body,redis.print
-          cache.expire key, 3600 * 24  # 1 day
+          cache.expire key, expire_seconds
           res.send "/datastore/fetch/#{id}"
     else if jwterr?.name == 'TokenExpiredError'
       res.status(403).json message: 'Access token过期'
