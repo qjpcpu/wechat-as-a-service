@@ -11,7 +11,7 @@ rest = require 'restler'
 config = require '../config'
 uuid = require 'node-uuid'
 redis = require 'redis'
-cache = require 'cache'
+cache = require './cache'
 
 log = debug 'waas:agent'
 
