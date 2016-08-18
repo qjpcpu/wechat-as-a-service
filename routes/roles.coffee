@@ -133,7 +133,7 @@ router.post '/:name/send', (req, res) ->
     async.waterfall [
       (cb) ->
         if req.query.freqId?.length > 0
-          Freq.get req.query.freqId, (exists) ->
+          Freq.get "#{res.locals.agent.identifier}:#{req.params.name}:#{req.query.freqId}", (exists) ->
             if exists?.length > 0 
               log 'do not send message'
               cb('duplicate message')
@@ -148,7 +148,7 @@ router.post '/:name/send', (req, res) ->
           log "send message failed",err
           res.status(403).json message: err
         else
-          Freq.put req.query.freqId, JSON.stringify(req.body)
+          Freq.put "#{res.locals.agent.identifier}:#{req.params.name}:#{req.query.freqId}", JSON.stringify(req.body)
           res.json message: 'OK'       
 
 module.exports = router            
