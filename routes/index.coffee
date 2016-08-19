@@ -11,6 +11,7 @@ jwt = require 'jsonwebtoken'
 Agent = require '../models/agent'
 redis = require 'redis'
 cache = require '../models/cache'
+async = require 'async'
 
 router = express.Router()
 log = debug('http')
@@ -141,5 +142,31 @@ router.post '/datastore/put', (req,res) ->
     else
       res.status(403).json message: '非法的access token'
 
+# post body.body is raw data
+# post body.keep is cache time in seconds
+router.post '/datastore/put/:id', (req,res) ->
+  token = req.query.accessToken
+  unless token 
+    log "No accessToken found in request"
+    res.status(403).json message: 'no access token found'
+    return
+  jwt.verify token, jwtCfg.secret, (jwterr, payload) ->
+    if payload?.type == 'accessToken' and payload?.agentId?
+      Agent.findOne where: identifier: payload.agentId.toString(), (camErr,agent) ->
+        if camErr
+          log "not found app",err
+          res.status(404).json message: '无对应的app' 
+        else
+          key = "waas:datastore:#{req.params.id}"
+          cache.get key ,(err,reply) ->
+            if reply?
+              cache.set key,req.body.body,redis.print
+              cache.expire key, req.body.keep if req.body.keep > 0
+            res.send "#{req.protocol}://#{req.get('host')}/datastore/fetch/#{req.params.id}"
+          
+    else if jwterr?.name == 'TokenExpiredError'
+      res.status(403).json message: 'Access token过期'
+    else
+      res.status(403).json message: '非法的access token'
 
 module.exports = router
