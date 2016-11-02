@@ -317,9 +317,9 @@ Agent.prototype.sendMessage = (opts,cb) ->
     sentCount = parseInt(rres,10)
     log "#{wc.name} sent #{sentCount} messages today."
     if sentCount > limit
-      log "#{wc.name} out of limit #{sentCount}"
+      log "#{wc.name} out of limit:#{limit} now:#{sentCount}"
       cache.decr key
-      cb("#{wc.name} out of limit #{sentCount}")
+      cb("#{wc.name} out of limit:#{limit} now:#{sentCount}")
     else
       rest.postJson("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=#{wc.accessToken}",
         msgBody
