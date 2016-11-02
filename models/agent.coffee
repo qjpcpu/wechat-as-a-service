@@ -10,6 +10,8 @@ jade = require 'jade'
 rest = require 'restler'
 config = require '../config'
 uuid = require 'node-uuid'
+cache = require './cache'
+redis = require 'redis'
 
 log = debug 'waas:agent'
 
@@ -307,15 +309,27 @@ Agent.prototype.sendMessage = (opts,cb) ->
   catch err
     log "message parameters invalid",err
     return cb(err)
-  rest.postJson("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=#{wc.accessToken}",
-    msgBody
-  ).once 'complete', (res) ->
-    if res.errcode == 0
-      log "send message ok"
-      cb() 
+  prefix = config.cachePrefix or 'waas'
+  limit = config.wechat.msgPerDay or 1000
+  key = "#{prefix}:#{moment().format('YYYY-MM-DD')}:#{wc.identifier}"
+  cache.set key,0,'EX',3600*24,'NX'
+  cache.incr key, (rerr,rres) ->
+    sentCount = parseInt(rres,10)
+    log "#{wc.name} sent #{sentCount} messages today."
+    if sentCount > limit
+      log "#{wc.name} out of limit #{sentCount}"
+      cache.decr key
+      cb("#{wc.name} out of limit #{sentCount}")
     else
-      log "failed to send message",(res.invaliduser or res.invalidparty or res.invalidtag or res.errmsg)
-      cb(res.invaliduser or res.invalidparty or res.invalidtag or res.errmsg)
+      rest.postJson("https://qyapi.weixin.qq.com/cgi-bin/message/send?access_token=#{wc.accessToken}",
+        msgBody
+      ).once 'complete', (res) ->
+        if res.errcode == 0
+          log "send message ok"
+          cb() 
+        else
+          log "failed to send message",(res.invaliduser or res.invalidparty or res.invalidtag or res.errmsg)
+          cb(res.invaliduser or res.invalidparty or res.invalidtag or res.errmsg)
 
 Agent.prototype.tags = (cb) ->
   rest.get("https://qyapi.weixin.qq.com/cgi-bin/tag/list?access_token=#{this.accessToken}").once 'complete', (res) ->

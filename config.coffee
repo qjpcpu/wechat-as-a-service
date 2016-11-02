@@ -9,6 +9,8 @@ config =
     corpSecret: 'your-corpSecret'
     token: 'first-token'
     encodingAesKey: 'first-token'
+    msgPerDay: 1000
+  cachePrefix: 'waas'
   redis:
     host: "localhost"
     port: '6379'
