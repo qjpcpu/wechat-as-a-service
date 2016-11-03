@@ -169,4 +169,29 @@ router.post '/datastore/put/:id', (req,res) ->
     else
       res.status(403).json message: '非法的access token'
 
+router.get '/menu', (req,res) ->
+  token = req.query.accessToken
+  unless token 
+    log "No accessToken found in request"
+    res.status(403).json message: 'no access token found'
+    return
+  jwt.verify token, jwtCfg.secret, (jwterr, payload) ->
+    if payload?.type == 'accessToken' and payload?.agentId?
+      Agent.findOne where: identifier: payload.agentId.toString(), (camErr,agent) ->
+        if camErr
+          log "not found app",err
+          res.status(404).json message: '无对应的app' 
+        else
+          agent.fetchAccessToken (tokenErr,nToken) ->
+            agent.getMenu  (err1,menus) ->
+              if err1
+                log "can't query menu",err1
+                res.status(404).json message: "cannot query menu"
+              else
+                res.json menus
+    else if jwterr?.name == 'TokenExpiredError'
+      res.status(403).json message: 'Access token过期'
+    else
+      res.status(403).json message: '非法的access token'
+
 module.exports = router
