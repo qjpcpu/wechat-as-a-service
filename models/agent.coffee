@@ -271,7 +271,10 @@ Agent.prototype.formatMessage = (msg) ->
       opts[opts.msgtype] = { content: msg.body }
     when 'textcard'
       throw 'textcard message body must be object' unless typeof msg.body == 'object'
-      msg.body.description = msg.body.description.replace ctrlUnicode,'' if msg.body.description?
+      throw 'textcard message title missing' unless msg.body.title?.length > 0
+      throw 'textcard message description missing' unless msg.body.description?.length > 0
+      throw 'textcard message url missing' unless msg.body.url?.length > 0
+      msg.body.description = msg.body.description.replace ctrlUnicode,'' 
       tdata = 
         title: msg.body.title
         description: msg.body.description
