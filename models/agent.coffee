@@ -256,7 +256,7 @@ Agent.prototype.formatMessage = (msg) ->
     toparty: if typeof msg.departmentIds == 'object' then msg.departmentIds.join('|') else msg.departmentIds
     totag: if typeof msg.tagIds == 'object' then msg.tagIds.join('|') else msg.tagIds
     msgtype: msg.type or 'text'
-    agentid: this.identifier
+    agentid: parseInt(this.identifier)
     safe: if msg.encrypt then 1 else 0
   for k,v of opts when k in ['touser','toparty','totag']
     delete opts[k] unless v?
@@ -418,7 +418,7 @@ Agent.prototype.getMenu = (callback) ->
   rest.get("https://qyapi.weixin.qq.com/cgi-bin/menu/get",
     query:
       access_token: this.accessToken
-      agentid: this.identifier
+      agentid: parseInt(this.identifier)
   ).on 'complete', (result) ->
     if result.menu?.button?
       log "get menu  successful",result.menu.button
