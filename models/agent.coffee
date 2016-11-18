@@ -82,6 +82,7 @@ Agent.prototype.decrypt = (message) ->
 Agent.prototype.fetchAccessToken = (cb) ->
   agent = this
   if agent.accessToken? and agent.accessTokenExpiredAt? and moment() < moment(agent.accessTokenExpiredAt)
+    log "fetch access token[#{agent.accessToken}] from cache success"
     cb null,agent.accessToken
   else
     rest.get('https://qyapi.weixin.qq.com/cgi-bin/gettoken',
@@ -96,7 +97,7 @@ Agent.prototype.fetchAccessToken = (cb) ->
         # make sure token is available
         result.expires_in -= 60
         expiredAt = moment().add(result.expires_in, 'seconds')
-        log "fetch access token success, it would expire at #{expiredAt.format('HH:mm')}"
+        log "fetch access token[#{result.access_token}] success, it would expire at #{expiredAt.format('HH:mm')}"
         agent.accessToken = result.access_token
         agent.accessTokenExpiredAt = expiredAt.toJSON()
         agent.save -> cb(null,agent.accessToken)
