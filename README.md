@@ -1,4 +1,4 @@
-# WechatAsAService(企业号)
+# WechatAsAService(企业微信)
 
 目的是利用微信作为消息通知器，能做到easy to config & ready to use. 并且能够非常容易地作为依赖服务存在，比如：能够轻松集成到OP的告警系统里去。
 
@@ -13,7 +13,7 @@
 
 WechatAsAService的工作模式:
 
-1. 运维/运营同学申请企业号，并在微信官网配置子系统如`erp,zabbix`等agent app的回调信息，为了管理方便，回调地址最好配置为相同地址，WechatAsAService可自动区分消息转发到的app
+1. 运维/运营同学申请企业微信，并在微信官网配置子系统如`erp,zabbix`等agent app的回调信息，为了管理方便，回调地址最好配置为相同地址，WechatAsAService可自动区分消息转发到的app
 2. 运维同学搭建WechatAsAService服务，配置其调用token及最终转发的地址。注意：每个agent app仅有一套回调地址，但可以有多个token。比如：在微信号里配置一个app叫`noah`(运维监控系统)，这个app在Waas的回调地址都配置为运维的监控系统，那么只有监控系统可以处理所有用户发送给`noah`的消息；但是，可以在Waas内为`noah`配置多个子调用token，比如监控系统本身可以调用全部的API，包括首发消息，管理人员关系等，但给某个产品线的仅开放一个最小token仅能发送消息。
 3. 所有内部系统开发同学只关心一件事: 我要调用的API(通常仅一个发送消息的API)及我的token
 

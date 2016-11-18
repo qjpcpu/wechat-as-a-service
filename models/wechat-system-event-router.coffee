@@ -21,8 +21,8 @@ class WeChatSystemEventRouter
         return cb(null,'')     
       evt = Cc.lowerCase entity.event
       # system login
-      if evt == 'scancode_waitmsg' and entity.scanCodeInfo?.ScanType == 'qrcode'
-        key = entity.scanCodeInfo.ScanResult
+      if evt == 'scancode_waitmsg' and entity.scanCodeInfo?[0]?.ScanType == 'qrcode'
+        key = entity.scanCodeInfo[0].ScanResult
         async.waterfall [
           (acb) ->
             jwt.verify key, jwtCfg.login.secret, (jwterr, loginCode) ->
