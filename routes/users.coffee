@@ -81,7 +81,7 @@ router.post '/send', (req,res) ->
   log req.body
   agent = res.locals.agent
   req.body.type ?= 'text'
-  unless req.body.type in ['text','news']
+  unless req.body.type in ['text','news','textcard']
     log "Not supported message type #{req.body.type}"
     return res.status(403).json message: "Not supported message type #{req.body.type}"
   unless req.body.body
@@ -155,7 +155,7 @@ router.delete '/:userId', (req,res) ->
 router.post '/:userId/send', (req,res) ->
   agent = res.locals.agent
   req.body.type ?= 'text'
-  unless req.body.type in ['text','news']
+  unless req.body.type in ['text','news','textcard']
     log "Not supported message type #{req.body.type}"
     return res.status(403).json message: "Not supported message type #{req.body.type}"
   unless req.body.body

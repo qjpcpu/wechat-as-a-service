@@ -269,6 +269,14 @@ Agent.prototype.formatMessage = (msg) ->
       throw 'text message body must be string' unless typeof msg.body == 'string'
       msg.body = msg.body.replace ctrlUnicode,''
       opts[opts.msgtype] = { content: msg.body }
+    when 'textcard'
+      throw 'textcard message body must be object' unless typeof msg.body == 'object'
+      msg.body.description = msg.body.description.replace ctrlUnicode,'' if msg.body.description?
+      tdata = 
+        title: msg.body.title
+        description: msg.body.description
+      tdata.url = msg.body.url if msg.body.url
+      opts[opts.msgtype] = tdata
     when 'image','voice','file'
       throw 'message body must be hash object' unless typeof msg.body == 'object'
       throw 'no mediaId found in messge body' unless msg.body.mediaId
