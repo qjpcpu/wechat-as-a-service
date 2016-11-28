@@ -14,8 +14,8 @@ class WeChatRouter
         evt = Cc.lowerCase entity.event
         async.waterfall [
           (acb) ->
-            if /^scancode/.test(evt) and entity.scanCodeInfo[0].ScanType == 'qrcode'
-              key = entity.scanCodeInfo[0].ScanResult
+            if /^scancode/.test(evt) and entity.scanCodeInfo.ScanType == 'qrcode'
+              key = entity.scanCodeInfo.ScanResult
               jwt.verify key, jwtCfg.login.secret, (jwterr, loginCode) ->
                 if loginCode?.type == 'login' or jwterr?.name == 'TokenExpiredError'
                   acb(null,'system_event_router')
