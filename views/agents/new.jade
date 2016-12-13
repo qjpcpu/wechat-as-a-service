@@ -13,6 +13,10 @@ block content
           .col-sm-10
             input#identifier.form-control(type='text', placeholder='微信控制台获取的app的ID',value="#{identifier || ''}")
         .form-group
+          label.col-sm-2.control-label(for='corpSecret') corpSecret
+          .col-sm-10
+            input#corpSecret.form-control(type='text', placeholder='微信控制台获取的app的corpSecret',value="#{corpSecret || ''}")            
+        .form-group
           label.col-sm-2.control-label(for='token') token
           .col-sm-10
             input#token.form-control(type='text', placeholder='微信控制台配置的app token',value="#{token || ''}")

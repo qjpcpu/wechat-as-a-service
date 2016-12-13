@@ -101,6 +101,7 @@ router.post '/:id', (req,res) ->
       res.status(400).json message: err
     else
       agent.encodingAesKey = req.body.encodingAesKey if req.body.encodingAesKey
+      agent.corpSecret = req.body.corpSecret if req.body.corpSecret?.length > 0 and agent.corpSecret != req.body.corpSecret
       agent.save (dberr) ->
         if dberr
           log dberr
@@ -143,6 +144,7 @@ router.post '/', (req,res) ->
       log err
       res.status(400).json message: err
     else
+      info.corpSecret = req.body.corpSecret if req.body.corpSecret?.length > 0
       agent = new Agent info
       agent.save (dberr,agent) ->
         if dberr

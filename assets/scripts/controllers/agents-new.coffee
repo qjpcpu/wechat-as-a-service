@@ -10,7 +10,7 @@ $ ->
       toastr.error 'App名称为空'
       return
     id = parseInt $('#identifier').val()
-    unless 0 < id < 100
+    unless id > 0
       toastr.error 'App Id必须为正整数'
       return
     token = $('#token').val()
@@ -26,6 +26,7 @@ $ ->
       name: name
       token: token
       encodingAesKey: encodingAesKey
+      corpSecret: $('#corpSecret').val()
       id: id
     , ((res) ->
       redirectUrl = if /agents\/?$/.test url then "/agents/#{res.id}/edit-detail" else '/agents'
