@@ -77,15 +77,9 @@ router.post '/:id', (req,res) ->
       else      
         cb(null,agent)
     (agent,cb) ->
-      if req.body.token
-        Agent.findOne where: { token: req.body.token,id: {ne: agent.id} }, (err,ag) ->
-          if ag
-            cb("该token属于#{ag.name}")
-          else
-            agent.token = req.body.token
-            cb(null,agent)
-      else
-        cb(null,agent)
+      if req.body.token?.length > 0 and  req.body.token != agent.token
+        agent.token = req.body.token
+      cb(null,agent)
     (agent,cb) ->
       if req.body.id
         Agent.findOne where: { identifier: req.body.id,id: {ne: agent.id} }, (err,ag) ->
