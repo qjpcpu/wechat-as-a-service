@@ -1,7 +1,10 @@
 express = require 'express'
 debug = require 'debug'
+fs = require 'fs'
+path = require 'path'
 uuid = require 'node-uuid'
 moment = require 'moment'
+rest = require 'restler'
 urlParse = require 'url-parse'
 config = require '../config'
 Client = require '../models/client'
@@ -193,5 +196,84 @@ router.get '/menu', (req,res) ->
       res.status(403).json message: 'Access token过期'
     else
       res.status(403).json message: '非法的access token'
+
+router.post '/fetch_ip', (req,res) ->
+  token = req.query.accessToken
+  unless token
+    log "No accessToken found in request"
+    res.status(403).json message: 'no access token found'
+    return
+  unless req.body.user
+    log "no user id"
+    res.status(403).json message: 'no user id'
+    return
+  unless req.body.title
+    log "no title"
+    res.status(403).json message: 'no title'
+    return
+  unless req.body.desc
+    log "no desc"
+    res.status(403).json message: 'no desc'
+    return
+  jwt.verify token, jwtCfg.secret, (jwterr, payload) ->
+    if payload?.type == 'accessToken' and payload?.agentId?
+      Agent.findOne where: identifier: payload.agentId.toString(), (camErr,agent) ->
+        if camErr
+          log "not found app",err
+          res.status(404).json message: '无对应的app'
+        else
+          if agent.events.client_ip?.url?.length > 0
+            id = (new Buffer(uuid.v1())).toString()
+            key = "waas:datastore:#{id}"
+            cache.set key,"#{agent.events.client_ip.url} #{req.body.user}",redis.print
+            cache.expire key,20
+            dest = "#{req.protocol}://#{req.get('host')}/logo/#{id}"
+            log "log uri",dest
+            payload =
+              users: req.body.user
+              type: "news"
+              body: [ {title: req.body.title,description: req.body.desc,url: dest,picUrl: dest} ]
+            agent.fetchAccessToken (tokenErr,nToken) ->
+              log "fetch token",tokenErr
+              agent.sendMessage payload, (serr) ->
+                log "send message to user ",serr
+                res.json message: "please wait"
+          else
+            res.status(403).json message: 'no callback uri'
+
+    else if jwterr?.name == 'TokenExpiredError'
+      res.status(403).json message: 'Access token过期'
+    else
+      res.status(403).json message: '非法的access token'
+
+router.get '/logo/:id', (req,res) ->
+  if req.params.id?.length > 0
+    key = "waas:datastore:#{req.params.id}"
+    cache.get key ,(err,reply) ->
+      log "error to fetch #{key}" if err
+      if reply?.length > 0
+        arr = reply.split ' '
+        uri = arr[0]
+        user_id = arr[1]
+        entity =
+          msgType: 'text'
+          content: req.headers['x-forwarded-for'] or req.headers['x-real-ip']
+          fromUser: arr[1]
+        log "request #{uri} with ",entity
+        rest.postJson(uri,
+          entity
+        { timeout: 4000 }
+        ).on 'complete', (result) ->
+          if result instanceof Error
+            log 'err ocurrs',result
+          else
+            log "get response",result
+      fs.readFile path.join(__dirname,'../views/logo.jpg'),(xerr,data) ->
+        res.writeHead(200, {'Content-Type': 'image/jpeg'});
+        res.end data
+  else
+    fs.readFile path.join(__dirname,'../views/logo.jpg'),(xerr,data) ->
+      res.writeHead(200, {'Content-Type': 'image/jpeg'});
+      res.end data
 
 module.exports = router

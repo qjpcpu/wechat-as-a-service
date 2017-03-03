@@ -4,7 +4,7 @@ toastr = require 'toastr'
 _ = require '../models/main'
 $ ->
   $('.del-row').off('click').on 'click', ->
-    $(this).parent().parent().remove()  
+    $(this).parent().parent().remove()
   eventsMap = [
     { code: 'subscribe', name: '订阅' }
     { code: 'unsubscribe', name: '退阅' }
@@ -19,7 +19,8 @@ $ ->
     { code: 'pic_weixin',name: '弹出微信相册发图器'}
     { code: 'location_select',name: '弹出地理位置选择器'}
     { code: 'batch_job_result',name: '异步任务完成'}
-  ]  
+    { code: 'client_ip',name: '上报IP'}
+  ]
   $('#add-msg').on 'click', ->
     lastId = parseInt($('#msg-table tr').last().attr('id').replace('line','')) + 1
     row = "<tr id='line#{lastId}'>

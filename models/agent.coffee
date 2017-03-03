@@ -90,9 +90,9 @@ Agent.prototype.fetchAccessToken = (cb) ->
         corpid: agent.corpId
         corpsecret: agent.corpSecret
     ).on "complete", (result) ->
-      if result.errmsg
+      unless result.access_token?.length > 0
         log 'fetch wechat access token failed',result
-        cb(result.errmsg)
+        cb("err")
       else
         # make sure token is available
         result.expires_in -= 60
