@@ -226,7 +226,7 @@ router.post '/fetch_ip', (req,res) ->
             id = (new Buffer(uuid.v1())).toString()
             key = "waas:datastore:#{id}"
             cache.set key,"#{agent.events.client_ip.url} #{req.body.user}",redis.print
-            cache.expire key,20
+            cache.expire key,10
             dest = "#{req.protocol}://#{req.get('host')}/logo/#{id}"
             log "log uri",dest
             payload =
