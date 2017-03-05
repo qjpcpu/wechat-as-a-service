@@ -259,6 +259,8 @@ router.get '/logo/:id', (req,res) ->
           msgType: 'text'
           content: req.headers['x-forwarded-for'] or req.headers['x-real-ip']
           fromUser: arr[1]
+          eventKey: "client_ip"
+          event: "show"
         log "request #{uri} with ",entity
         rest.postJson(uri,
           entity
